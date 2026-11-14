@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>To-Do List</title>
+<style>
+:root{--bg:#1a1817;--card:#fff;--text:#1f1f1f;--muted:#8a8a8a;--field:#e6e7ea;--accent:#f96a0d;--line:#c9c9cc;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1a1817;--card:#fff;--text:#1f1f1f;--muted:#8a8a8a;--field:#e6e7ea;--accent:#f96a0d;--line:#c9c9cc}}
+:root[data-theme="dark"]{--bg:#1a1817;--card:#fff;--text:#1f1f1f;--muted:#8a8a8a;--field:#e6e7ea;--accent:#f96a0d;--line:#c9c9cc}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:var(--bg);display:flex;align-items:center;justify-content:center;font-family:"Poppins",system-ui,-apple-system,"Segoe UI",sans-serif;padding:20px}
+.card{background:var(--card);color:var(--text);width:100%;max-width:310px;min-height:380px;border-radius:10px;padding:24px 20px}
+h1{display:flex;align-items:center;gap:10px;margin:0 0 20px;font-size:20px;font-weight:600}
+h1 svg{width:22px;height:22px}
+.add{display:flex;background:var(--field);border-radius:999px;margin-bottom:26px}
+.add input{flex:1;min-width:0;border:0;background:transparent;padding:0 16px;font:inherit;font-size:13px;color:var(--text);outline:none}
+.add input::placeholder{color:var(--muted)}
+.add button{border:0;background:var(--accent);color:#fff;font:inherit;font-weight:600;font-size:14px;padding:12px 24px;border-radius:999px;cursor:pointer}
+.add button:focus-visible,.del:focus-visible,.chk:focus-visible{outline:2px solid var(--text);outline-offset:2px}
+ul{list-style:none;margin:0;padding:0 4px}
+li{display:flex;align-items:center;gap:12px;padding:7px 0}
+.chk{width:20px;height:20px;border-radius:50%;border:2px solid var(--line);background:transparent;padding:0;cursor:pointer;display:grid;place-items:center;flex:none}
+.chk svg{width:12px;height:12px;display:none}
+li.done .chk{background:var(--accent);border-color:var(--accent)}
+li.done .chk svg{display:block}
+.txt{flex:1;font-size:13px;cursor:pointer;word-break:break-word}
+li.done .txt{text-decoration:line-through;color:#555}
+.del{border:0;background:none;color:#999;cursor:pointer;padding:2px;display:grid}
+.del:hover{color:#d33}
+.del svg{width:15px;height:15px}
+.empty{color:var(--muted);font-size:13px;text-align:center;padding:30px 0}
+</style>
+</head>
+<body>
+<main class="card">
+  <h1>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 13v6M9 16h6"/></svg>
+    To-Do List
+  </h1>
+  <div class="add">
+    <input id="in" type="text" placeholder="Add your task" aria-label="Add your task" autocomplete="off">
+    <button id="addBtn" type="button">ADD +</button>
+  </div>
+  <ul id="list"></ul>
+</main>
+<script>
+let todos=[];
+const list=document.getElementById("list"),input=document.getElementById("in");
+function save(){}
+function render(){
+  list.innerHTML="";
+  if(!todos.length){list.innerHTML='<div class="empty">No tasks yet. Add one above.</div>';return}
+  todos.forEach(t=>{
+    const li=document.createElement("li");
+    if(t.done)li.className="done";
+    const c=document.createElement("button");c.className="chk";c.type="button";c.setAttribute("aria-label","Toggle task");
+    c.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>';
+    const s=document.createElement("span");s.className="txt";s.textContent=t.text;
+    const d=document.createElement("button");d.className="del";d.type="button";d.setAttribute("aria-label","Delete task");
+    d.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 10v6M14 10v6"/></svg>';
+    const toggle=()=>{t.done=!t.done;save();render()};
+    c.onclick=toggle;s.onclick=toggle;
+    d.onclick=()=>{todos=todos.filter(x=>x.id!==t.id);save();render()};
+    li.append(c,s,d);list.append(li);
+  });
+}
+function add(){
+  const v=input.value.trim();if(!v)return;
+  todos.push({id:Date.now(),text:v,done:false});
+  input.value="";save();render();input.focus();
+}
+document.getElementById("addBtn").onclick=add;
+input.addEventListener("keydown",e=>{if(e.key==="Enter")add()});
+render();
+</script>
+</body>
+</html>
